@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'api.house',
     'api.myuser',
     'xadmin',
-    'crispy_forms'
+    'crispy_forms',
+    'django_extensions'
 ]
 
 MIDDLEWARE = [
@@ -116,7 +117,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 
