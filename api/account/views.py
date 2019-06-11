@@ -1,13 +1,27 @@
 #encoding:utf-8
 from django.http import JsonResponse
 from django.conf import settings
-from .models import Account
+from .models import AccountModel
 from django import views
 import requests,json
+# from api.utils.auth_token import verify_bearer_token
 from rest_framework_jwt.settings import api_settings
+
 
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
+
+
+class IndexView(views.View):
+    def get(self,request):
+        print('123123')
+        a = request
+        print(a)
+        token = request.GET.get("token")
+        print(token)
+        # jwt_token = verify_bearer_token(token)
+        # print(jwt_token)
+        return JsonResponse({'ok':"ok"})
 
 
 
@@ -26,25 +40,20 @@ class UserLoginView(views.View):
             if not openid:
                 return JsonResponse({"msg": "openid 失败"})
             try:
-                user = Account.objects.get(openid=openid)
+                user = AccountModel.objects.get(openid=openid)
             except Exception:
                 nickName = data.get("nickName",'')
                 gender = data.get("gender",'')
                 avatarUrl = data.get("avatarUrl",'')
                 province = data.get("province",'')
                 city = data.get("city",'')
-                user = Account.objects.create(
+                user = AccountModel.objects.create(
                     nickname=nickName,avatarUrl=avatarUrl, province=province,
                     city=city,gender=gender, openid=openid
                 )
             payload = jwt_payload_handler(user)
             token = jwt_encode_handler(payload)
-            return JsonResponse({
-                    "user_id": user.id,
-                    "nickname": user.nickname,
-                    "avatar": user.avatarUrl,
-                    "token": token,
-                    })
+            return JsonResponse({"token": token})
         else:
             return JsonResponse({"msg": "code未传递"})
 

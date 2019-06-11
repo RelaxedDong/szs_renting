@@ -13,8 +13,8 @@ class AccountManager(Manager):
         return account
 
 
-class Account(models.Model):
-    objects = AccountManager()
+class AccountModel(models.Model):
+    # objects = AccountManager()
     Gender = (
         ('0', '未知'),
         ('1', '男'),
@@ -34,3 +34,6 @@ class Account(models.Model):
     status = models.CharField('状态', max_length=10, choices=STATUS, default='normal')
     name = models.CharField('真实姓名', max_length=30, default='', blank=True)
     create_time = models.DateTimeField('加入时间', default=timezone.now)
+
+    class Meta:
+        db_table = 'account'

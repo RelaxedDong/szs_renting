@@ -14,7 +14,7 @@ class House(models.Model):
     cover = models.CharField(max_length=200,verbose_name="封面")
     desc = models.TextField(verbose_name="详情")
     address = models.CharField(max_length=150,verbose_name="地址")
-    facilities = models.CharField(max_length=200,verbose_name="设施")
+    facilities = models.TextField(default={},null=False,verbose_name="设施")
     is_elevator = models.BooleanField(default=False,verbose_name="电梯房")
     has_living_room = models.BooleanField(default=False,verbose_name="客厅房")
     status = models.CharField(choices=STATUS,default='1',max_length=1,verbose_name="状态")

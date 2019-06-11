@@ -5,9 +5,11 @@ from api.myuser.models import User
 
 def create_user(email,username,password):
     User.objects.create_user(email=email, username=username, password=password)
+    print('create user success')
 
 def create_superuser(email,username,password):
     User.objects.create_superuser(email=email, username=username, password=password)
+    print('create superuser success')
 
 
 def run():
