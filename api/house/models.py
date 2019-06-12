@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 
 # Create your models here.
 
@@ -20,6 +21,9 @@ class House(models.Model):
     status = models.CharField(choices=STATUS,default='1',max_length=1,verbose_name="状态")
     publisher = models.ForeignKey(get_user_model(),on_delete=models.PROTECT,verbose_name='发布者')
 
+    def __repr__(self):
+        return "%s %s"%self.id,self.title
+
 class HouseImg(models.Model):
     STATUS = (
         ('1','展示中'),
@@ -30,3 +34,11 @@ class HouseImg(models.Model):
     cover = models.CharField(max_length=200,verbose_name="图片")
     url = models.CharField(max_length=200,verbose_name="跳转链接")
     status = models.CharField(choices=STATUS, default='1', max_length=1, verbose_name="状态")
+
+
+class Banner(models.Model):
+    img_url = models.CharField(max_length=200,null=False,verbose_name="封面图")
+    redirect_url = models.CharField(max_length=200,null=False,verbose_name="跳转链接")
+    publisher = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, verbose_name='发布者')
+    desc = models.CharField(max_length=200,default="",null=True,verbose_name="说明")
+    create_time = models.DateTimeField(default=timezone.now,verbose_name="加入时间")

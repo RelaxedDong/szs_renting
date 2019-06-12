@@ -24,6 +24,8 @@ class User(AbstractBaseUser,PermissionsMixin):
     username = models.CharField(max_length=20,unique=True,verbose_name="用户名")
     email = models.EmailField(max_length=100,unique=True,verbose_name="邮箱")
     is_active = models.BooleanField(default=True,verbose_name="是否活跃")
+    first_name = models.CharField(max_length=20,default="",verbose_name="first_name")
+    last_name = models.CharField(max_length=20,default="",verbose_name="last_name")
 
     is_staff = models.BooleanField(
         default=True,
