@@ -1,7 +1,7 @@
 #encoding:utf-8
 from django.urls import path,include
 from api.account.views import UserLoginView
-from api.house.views import index
+from api.house.views import index,SearchListView
 
 urlpatterns = [
     path('account/', include([
@@ -9,5 +9,6 @@ urlpatterns = [
     ])),
     path('house/',include([
         path("index",index,name='index'),
+        path("search",SearchListView.as_view(),name='search'),
     ]))
 ]

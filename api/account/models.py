@@ -37,4 +37,6 @@ class AccountModel(models.Model):
 
     class Meta:
         db_table = 'account'
+        verbose_name = '账户'
+        verbose_name_plural = '账户'
 

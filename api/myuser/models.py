@@ -45,7 +45,9 @@ class User(AbstractBaseUser,PermissionsMixin):
     def get_short_name(self):
         """Return the short name for the user."""
         return self.username
-
+    class Meta:
+        verbose_name = '后台USER'
+        verbose_name_plural = '后台USER'
 
 
 

@@ -27,7 +27,7 @@ SECRET_KEY = 'h*w-k=c-@5qg_jgnvvr)f554n-@1fa1so0&1n30j&r4a3=j+#z'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["172.16.18.186"]
+ALLOWED_HOSTS = ["172.16.18.186","192.168.1.22","127.0.0.1"]
 
 # Application definition
 
@@ -47,7 +47,6 @@ INSTALLED_APPS = [
     'crispy_forms',
     'rest_framework'
 ]
-
 
 
 MIDDLEWARE = [
