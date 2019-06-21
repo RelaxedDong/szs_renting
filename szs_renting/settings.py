@@ -27,7 +27,7 @@ SECRET_KEY = 'h*w-k=c-@5qg_jgnvvr)f554n-@1fa1so0&1n30j&r4a3=j+#z'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["172.16.18.186","192.168.1.22","127.0.0.1"]
+ALLOWED_HOSTS = ["172.16.18.186","192.168.1.22","127.0.0.1","172.16.18.186"]
 
 # Application definition
 
@@ -154,3 +154,5 @@ WXSETTINGS = {
     "APP_ID":"wxb8839c69a95f80ee",
     "APP_SECRET":"19989f534af464e825a8179c39301974"
 }
+
+

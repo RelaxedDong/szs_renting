@@ -1,15 +1,66 @@
 # encodinig:utf-8
 from django import views
-from django.shortcuts import HttpResponse
 from django.http import JsonResponse
 from .models import House, Banner
 from .serializers import HouseSerializer, BannerSerializer
 from rest_framework.response import Response
-from api.myuser.models import User
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.decorators import api_view
 from django.db import connection
+from api.utils import restful,word_check
+from django.views import View
 
+
+class AdminView(View):
+    searchBar_regex = word_check.WordCheck().searchBar_regex
+    @classmethod
+    def wash_sql_parmas(cls, parm):
+        """
+        清洗sql参数，如果有不合格的参数，直接清洗为''
+        """
+        if isinstance(parm, str):
+            match = cls.searchBar_regex.search(parm)
+            if not match:
+                return parm
+            return ''
+
+        if isinstance(parm, dict):
+            _dict = {}
+            for (k, v) in parm.items():
+                if isinstance(v, str):
+                    match = cls.searchBar_regex.search(v)
+                    if match:
+                        _dict[k] = ''
+                    else:
+                        _dict[k] = v
+                elif isinstance(v, int):
+                    _dict[k] = v
+                elif isinstance(v, list):
+                    new_lst = []
+                    for row in v:
+                        match = cls.searchBar_regex.search(row)
+                        if not match:
+                            new_lst.append(row)
+                    _dict[k] = new_lst
+                else:
+                    _dict[k] = ''
+
+            return _dict
+
+        if isinstance(parm, list):
+            _list = []
+            for v in parm:
+                if isinstance(v, str):
+                    match = cls.searchBar_regex.search(v)
+                    if match:
+                        _list.append('')
+                    else:
+                        _list.append(v)
+                else:
+                    _list.append('')
+
+            return _list
+
+        return parm
 
 class MyLimitOffsetPagination(LimitOffsetPagination):
     # 默认显示的个数
@@ -21,10 +72,8 @@ class MyLimitOffsetPagination(LimitOffsetPagination):
     # 一页最多显示的个数
     max_limit = 10
 
-
-@api_view(['GET', 'POST'])
-def index(request):
-    if request.method == 'GET':
+class IndexView(AdminView):
+    def get(self,request):
         houses = House.objects.get_queryset()
         banners = Banner.objects.all()
         pg = MyLimitOffsetPagination()
@@ -36,32 +85,51 @@ def index(request):
         return Response({'house': houses, 'banner': banners_serializer.data})
 
 
-class SearchListView(views.View):
+
+class SearchListView(AdminView):
     def get(self, request):
+        args = self.wash_sql_parmas(request.GET)
         if request.method == "GET":
             cursor = connection.cursor()
-            where = self.parse_form_data(request.GET)
+            where = self.parse_form_data(args)
             sql_str = """
-                select title as title,price,subway from house_house 
+                select title,price,subway from house_house 
                 where status = '0' {condition}
             """.format(condition=where)
             print(sql_str)
-            cursor.execute(sql_str)
-            rows = cursor.fetchall()
-            print(rows)
+            res = cursor.execute(sql_str)
+            print(res)
             return JsonResponse(data='ok', safe=False)
 
     def parse_form_data(self, cleaned_data):
-        subway = cleaned_data.get("subway", "0")
-        region = cleaned_data.get("region", "0")
-        house_type = cleaned_data.get("house_type", "0")
         where = ""
-        if subway != '0':
-            where += """and subway = '%s' """ % subway if subway != "0" else ""
-
-        if region != '0':
-            where += """and region = '%s' """ % region if region != "0" else ""
-
-        if house_type != '0':
-            where += """and house_type = '%s' """ % house_type if house_type != "0" else ""
+        for key, value in cleaned_data.items():
+            if key == 'title':
+                where += """and title like '%s' """%('%'+value+'%')
+            elif value != '0' and value != '不限':
+                where += """and {key} = '%s' """.format(key=key) % value
         return where
+
+class SelectItems(views.View):
+    def get(self, request):
+        subway = House.SUBWAY
+        regions = House.REGION
+        apartment = House.APARTMENT
+        house_type = House.HOUSETYPE
+        return JsonResponse({
+            'subway': subway,
+            'regions': regions,
+            'apartment': apartment,
+            'house_type': house_type,
+        })
+
+
+class HouseDetailView(views.View):
+    def get(self,request,id):
+        try:
+            house = House.objects.get(pk=id)
+        except:
+            return restful.paramerror(msg="房源不存在")
+        if house:
+            house = HouseSerializer(house).data
+            return restful.success(data=house)
