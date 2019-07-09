@@ -1,16 +1,68 @@
 # encodinig:utf-8
 from django import views
-from django.shortcuts import HttpResponse
 from django.http import JsonResponse
 from .models import House, Banner
 from .serializers import HouseSerializer, BannerSerializer
 from rest_framework.response import Response
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.decorators import api_view
 from django.db import connection
 from api.utils import restful
 import re
+from api.utils import restful,word_check
+from django.views import View
 
+
+class AdminView(View):
+    searchBar_regex = word_check.WordCheck().searchBar_regex
+    @classmethod
+    def wash_sql_parmas(cls, parm):
+        """
+        清洗sql参数，如果有不合格的参数，直接清洗为''
+        """
+        if isinstance(parm, str):
+            match = cls.searchBar_regex.search(parm)
+            if not match:
+                return parm
+            return ''
+
+        if isinstance(parm, dict):
+            _dict = {}
+            for (k, v) in parm.items():
+                if isinstance(v, str):
+                    match = cls.searchBar_regex.search(v)
+                    if match:
+                        _dict[k] = ''
+                    else:
+                        _dict[k] = v
+                elif isinstance(v, int):
+                    _dict[k] = v
+                elif isinstance(v, list):
+                    new_lst = []
+                    for row in v:
+                        match = cls.searchBar_regex.search(row)
+                        if not match:
+                            new_lst.append(row)
+                    _dict[k] = new_lst
+                else:
+                    _dict[k] = ''
+
+            return _dict
+
+        if isinstance(parm, list):
+            _list = []
+            for v in parm:
+                if isinstance(v, str):
+                    match = cls.searchBar_regex.search(v)
+                    if match:
+                        _list.append('')
+                    else:
+                        _list.append(v)
+                else:
+                    _list.append('')
+
+            return _list
+
+        return parm
 
 class MyLimitOffsetPagination(LimitOffsetPagination):
     # 默认显示的个数
@@ -22,10 +74,8 @@ class MyLimitOffsetPagination(LimitOffsetPagination):
     # 一页最多显示的个数
     max_limit = 10
 
-
-@api_view(['GET', 'POST'])
-def index(request):
-    if request.method == 'GET':
+class IndexView(AdminView):
+    def get(self,request):
         houses = House.objects.get_queryset()
         banners = Banner.objects.all()
         pg = MyLimitOffsetPagination()
@@ -36,11 +86,15 @@ def index(request):
         banners_serializer = BannerSerializer(banners, many=True)
         return Response({'house': houses, 'banner': banners_serializer.data})
 
-class SearchListView(views.View):
+
+
+
+class SearchListView(AdminView):
     def get(self, request):
+        args = self.wash_sql_parmas(request.GET)
         if request.method == "GET":
             cursor = connection.cursor()
-            where = self.parse_form_data(request.GET)
+            where = self.parse_form_data(args)
             sql_str = """
                 select title,price,subway from house_house 
                 where status = '0' {condition}
@@ -79,11 +133,12 @@ class HouseDetailView(views.View):
             house = House.objects.get(pk=id)
             house.view_count += 2
             house.save()
+            house = HouseSerializer(house).data
+            house['apartment'] = House.APARTMENT[int(house['apartment'])][1]
             imgs = re.findall(r'\'(.*?)\'', house.imgs)
+            return restful.success(data={'house': house, 'imgs': imgs})
         except Exception as e:
             print(e)
             return restful.paramerror(msg="房源不存在")
-        if house:
-            house = HouseSerializer(house).data
-            house['apartment'] = House.APARTMENT[int(house['apartment'])][1]
-            return restful.success(data={'house':house,'imgs':imgs})
+
+
