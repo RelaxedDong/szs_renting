@@ -9,17 +9,16 @@ class HouseManager(models.Manager):
     pass
 
 
-
 class House(models.Model):
     STATUS = (('0', '售卖中'), ('1', '已删除'), ('2', '已售卖'),)
     SUBWAY = (
-        ('0', '不限'), ('1', '1号线'), ('2', '2号线'), ('3', '3号线'), ('4', '4号线'), ('5', '5号线'),('6', '6号线'),
+        ('0', '未填写'), ('1', '1号线'), ('2', '2号线'), ('3', '3号线'), ('4', '4号线'), ('5', '5号线'), ('6', '6号线'),
         ('7', '7号线'), ('8', '8号线'), ('9', '9号线'), ('10', '10号线'), ('11', '11号线'),)
     REGION = (
-        ('0', '不限'), ('1', '罗湖区'), ('2', '福田区'), ('3', '南山区'), ('4', '龙岗区'), ('5', '盐田区'),
+        ('0', '未填写'), ('1', '罗湖区'), ('2', '福田区'), ('3', '南山区'), ('4', '龙岗区'), ('5', '盐田区'),
         ('6', '宝安区'), ('7', '光明新区'), ('8', '坪山新区'), ('9', '龙华新区'), ('10', '大鹏新区'),)
-    HOUSETYPE = (('0', '不限'), ('1', '单间'), ('2', '合租'), ('3', '一室一厅'), ('4', '两室一厅'),('5', '其它'))
-
+    APARTMENT = (('0', '未填写'), ('1', '单间'), ('2', '合租'), ('3', '一室一厅'), ('4', '两室一厅'), ('5', '其它'))
+    HOUSETYPE = (('0', '未填写'), ('1', '整租'), ('2', '合租'))
     objects = HouseManager
     title = models.CharField(max_length=150, null=False, blank=False, verbose_name="标题")
     price = models.IntegerField(null=False, blank=False, verbose_name="价格")
@@ -28,15 +27,19 @@ class House(models.Model):
     address = models.CharField(max_length=150, verbose_name="详细地址")
     subway = models.CharField(max_length=20, choices=SUBWAY, verbose_name="周边地铁", null=False, default='0')
     region = models.CharField(max_length=20, choices=REGION, verbose_name="区域", null=False, default='0')
-    house_type = models.CharField(max_length=20, choices=HOUSETYPE, default='1', null=False, verbose_name='户型')
-    facilities = models.TextField(default={}, null=False, verbose_name="设施")
+    house_type = models.CharField(max_length=20, choices=HOUSETYPE, default='0', null=False, verbose_name='类型（整租，合租）')
+    apartment = models.CharField(max_length=20, verbose_name="户型", choices=APARTMENT, default='0')
+    facilities = models.TextField(default=[], null=False, verbose_name="设施")
     is_elevator = models.BooleanField(default=False, verbose_name="电梯房")
     is_apartment = models.BooleanField(default=False, verbose_name="公寓房")
     status = models.CharField(choices=STATUS, default='0', max_length=1, verbose_name="状态")
-    publisher = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, verbose_name='发布者')
 
-    def __repr__(self):
-        return "%s %s" % self.id, self.title
+    publisher = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, verbose_name='发布者')
+    view_count = models.IntegerField(null=True, verbose_name="查看数量", default=0, blank=True)
+    imgs = models.TextField(default=[], null=False, verbose_name='图片')
+    diraction = models.CharField(max_length=20, null=True, verbose_name="方向", blank=True)
+    area = models.CharField(null=True, verbose_name="面积", blank=True, max_length=3)
+    storey = models.CharField(max_length=3, null=True, verbose_name="楼层", blank=True)
 
     class Meta:
         verbose_name = '房源'

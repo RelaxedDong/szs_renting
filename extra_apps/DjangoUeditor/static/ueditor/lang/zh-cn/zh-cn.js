@@ -516,7 +516,7 @@ UE.I18N['zh-cn'] = {
         'static':{
             'lang_input_address':'地址',
             'lang_input_search':'搜索',
-            'address':{value:"北京"}
+            'address':{value:"深圳"}
         },
         searchError:'无法定位到该地址!'
     },
@@ -566,7 +566,7 @@ UE.I18N['zh-cn'] = {
         'static':{
             lang_city:"城市",
             lang_address:"地址",
-            city:{value:"北京"},
+            city:{value:"深圳"},
             lang_search:"搜索",
             lang_dynamicmap:"插入动态地图"
         },

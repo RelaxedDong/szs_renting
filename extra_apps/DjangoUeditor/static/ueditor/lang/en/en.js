@@ -514,7 +514,7 @@ UE.I18N['en'] = {
         'static':{
             'lang_input_address':'Address:',
             'lang_input_search':'Search',
-            'address':{value:"Beijing"}
+            'address':{value:"Shenzhen"}
         },
         searchError:'Unable to locate the address!'
     },
@@ -564,7 +564,7 @@ UE.I18N['en'] = {
         'static':{
             lang_city:"City",
             lang_address:"Address",
-            city:{value:"Beijing"},
+            city:{value:"Shenzhen"},
             lang_search:"Search",
             lang_dynamicmap:"Dynamic map"
         },
